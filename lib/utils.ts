@@ -33,11 +33,6 @@ export function formatPhoneForWhatsApp(phone: string): string {
   return `55${cleaned}`;
 }
 
-export function validateEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
 export function generateWhatsAppLink(phone: string, message: string): string {
   const formattedPhone = formatPhoneForWhatsApp(phone);
   const encodedMessage = encodeURIComponent(message);

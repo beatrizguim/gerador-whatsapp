@@ -19,11 +19,7 @@ Design: [Figma - Teste Dev - Ferramenta de Gerador Link Whatsapp](https://www.fi
 ### Obrigatórios:
 
 - Número de WhatsApp - Máscara `(99) 99999-9999` (aceita 10 ou 11 dígitos)
-- Email - Validação de formato de email
-
-### Opcionais:
-
-- Mensagem padrão - Campo de texto livre
+- Nome - Validação de no mínimo 2 caracteres
 - Cargo - Select com 13 opções:
   - Sócio(a) / CEO / Proprietário(a)
   - Diretor(a) de Vendas
@@ -38,6 +34,7 @@ Design: [Figma - Teste Dev - Ferramenta de Gerador Link Whatsapp](https://www.fi
   - Vendedor(a) / Executivo(a) de Contas
   - Estudante
   - Outros Cargos
+- Mensagem padrão - Campo de texto livre
 
 ## Link Gerado
 

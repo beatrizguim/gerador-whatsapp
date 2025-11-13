@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent, ChangeEvent } from 'react';
-import { formatPhoneNumber, validatePhoneNumber, validateEmail, generateWhatsAppLink } from '@/lib/utils';
+import { formatPhoneNumber, validatePhoneNumber, generateWhatsAppLink } from '@/lib/utils';
 import { WhatsAppFormProps } from '@/types';
 import { POSITIONS } from '@/constants/positions';
 import PageLayout from './layout/PageLayout';
@@ -12,7 +12,7 @@ import ExamplesSection from './ExamplesSection';
 import FAQSection from './FAQSection';
 
 export default function WhatsAppForm({ onSubmit, showFeatures = false }: WhatsAppFormProps) {
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [position, setPosition] = useState('');
@@ -37,10 +37,18 @@ export default function WhatsAppForm({ onSubmit, showFeatures = false }: WhatsAp
       newErrors.phone = 'Número inválido. Use o formato (99) 99999-9999';
     }
 
-    if (!email.trim()) {
-      newErrors.email = 'Email é obrigatório';
-    } else if (!validateEmail(email)) {
-      newErrors.email = 'Email inválido';
+    if (!name.trim()) {
+      newErrors.name = 'Nome é obrigatório';
+    } else if (name.trim().length < 2) {
+      newErrors.name = 'Nome deve ter no mínimo 2 caracteres';
+    }
+
+    if (!position.trim()) {
+      newErrors.position = 'Cargo é obrigatório';
+    }
+
+    if (!message.trim()) {
+      newErrors.message = 'Mensagem é obrigatória';
     }
 
     setErrors(newErrors);
@@ -56,24 +64,24 @@ export default function WhatsAppForm({ onSubmit, showFeatures = false }: WhatsAp
 
     setIsSubmitting(true);
 
-    const whatsappLink = generateWhatsAppLink(phone, message || 'Olá!');
+    const whatsappLink = generateWhatsAppLink(phone, message);
 
     try {
       await fetch('https://hooks.zapier.com/hooks/catch/13309391/uie4g8v/', {
         method: 'POST',
         mode: 'no-cors',
         body: JSON.stringify({
-          email,
+          name,
           phone,
-          message: message || '',
-          position: position || '',
+          message,
+          position,
         }),
       });
     } catch (error) {
       console.warn('Não foi possível enviar dados para o Zapier:', error);
     }
 
-    onSubmit({ email, phone, message, position }, whatsappLink);
+    onSubmit({ name, phone, message, position }, whatsappLink);
     setIsSubmitting(false);
   };
 
@@ -93,6 +101,32 @@ export default function WhatsAppForm({ onSubmit, showFeatures = false }: WhatsAp
 
             <form onSubmit={handleSubmit} className="form-container">
               <div className="form-row">
+                <div className="form-field">
+                  <label htmlFor="name" className="form-label">
+                    Nome*
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errors.name) {
+                        setErrors(prev => ({ ...prev, name: '' }));
+                      }
+                    }}
+                    className={`form-input ${errors.name ? 'form-input-error' : ''}`}
+                    placeholder="Adicione seu nome"
+                    aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? 'name-error' : undefined}
+                  />
+                  {errors.name && (
+                    <p id="name-error" className="error-message" role="alert">
+                      {errors.name}
+                    </p>
+                  )}
+                </div>
+
                 <div className="form-field">
                   <label htmlFor="phone" className="form-label">
                     Número do WhatsApp*
@@ -114,37 +148,11 @@ export default function WhatsAppForm({ onSubmit, showFeatures = false }: WhatsAp
                     </p>
                   )}
                 </div>
-
-                <div className="form-field">
-                  <label htmlFor="email" className="form-label">
-                    Email*
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (errors.email) {
-                        setErrors(prev => ({ ...prev, email: '' }));
-                      }
-                    }}
-                    className={`form-input ${errors.email ? 'form-input-error' : ''}`}
-                    placeholder="nome@email.com"
-                    aria-invalid={!!errors.email}
-                    aria-describedby={errors.email ? 'email-error' : undefined}
-                  />
-                  {errors.email && (
-                    <p id="email-error" className="error-message" role="alert">
-                      {errors.email}
-                    </p>
-                  )}
-                </div>
               </div>
 
               <div className="form-field">
                 <label htmlFor="position" className="form-label">
-                  Cargo
+                  Cargo*
                 </label>
                 <select
                   id="position"
@@ -175,16 +183,28 @@ export default function WhatsAppForm({ onSubmit, showFeatures = false }: WhatsAp
 
               <div className="form-field">
                 <label htmlFor="message" className="form-label">
-                  Mensagem (Opcional)
+                  Mensagem*
                 </label>
                 <textarea
                   id="message"
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    if (errors.message) {
+                      setErrors(prev => ({ ...prev, message: '' }));
+                    }
+                  }}
                   rows={4}
-                  className="form-textarea"
+                  className={`form-textarea ${errors.message ? 'form-input-error' : ''}`}
                   placeholder="Crie uma mensagem que facilite a interação com os contatos."
+                  aria-invalid={!!errors.message}
+                  aria-describedby={errors.message ? 'message-error' : undefined}
                 />
+                {errors.message && (
+                  <p id="message-error" className="error-message" role="alert">
+                    {errors.message}
+                  </p>
+                )}
               </div>
 
               <div className="privacy-text privacy-policy">
